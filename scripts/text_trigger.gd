@@ -1,27 +1,39 @@
-extends Node
-@export var tileset_source_id: int = 0
-@export var sheet_columns: int = 8
-@export var tile_size: int = 8
+extends Area2D
+
+@export var text: String;
+@export var start_coord: Vector2i;
+@export var target_layer: TileMapLayer;
+@export var type_speed: float = 0.05;
+@export var scroll: bool = false;
+@export var fall: bool = false;
 @export var scroll_duration: float = 0.12
-@export var interaction_layer: TileMapLayer
-@export var phase_layer: TileMapLayer
+@export var delay: float = 0.00;
+
+var tileset_source_id: int = 0
+var sheet_columns: int = 8
+var tile_size: int = 8
 
 const START_ASCII = 32
-
 const charmap = {
-	32: 0,
+	32: 0,	# space
 	# A -> Z
 	65: 1, 66: 2, 67: 3, 68: 4, 69: 5, 70: 6, 
 	71: 7, 72: 8, 73: 9, 74: 10, 75: 11,
 	76: 12, 77: 13, 78: 14, 79: 15, 80: 16,
 	81: 17, 82: 18, 83: 19, 84: 20, 85: 21,
 	86: 22, 87: 23, 88: 24, 89: 25, 90: 26,
+	# a -> z
+	97: 1, 98: 2, 99: 3, 100: 4, 101: 5, 102: 6, 
+	103: 7, 104: 8, 105: 9, 106: 10, 107: 11,
+	108: 12, 109: 13, 110: 14, 111: 15, 112: 16,
+	113: 17, 114: 18, 115: 19, 116: 20, 117: 21,
+	118: 22, 119: 23, 120: 24, 121: 25, 122: 26,
 	# 0 -> 9
 	48: 27, 49: 28, 50: 29, 51: 30, 52: 31,
 	53: 32, 54: 33, 55: 34, 56: 35, 57: 36
 }
 
-func write_text(text: String, start_coord: Vector2i, target_layer: TileMapLayer = interaction_layer, type_speed: float = 0.05, scroll: bool = false, fall: bool = false):
+func write_text(text: String, start_coord: Vector2i, target_layer: TileMapLayer, type_speed: float = 0.05, scroll: bool = false, fall: bool = false):
 	var current_coord = start_coord
 	var placed_tiles: Array[Dictionary] = [] # Track tiles if fall is true
 	for i in range(text.length()):
@@ -132,7 +144,13 @@ func swap_character_layer(source: TileMapLayer, dest: TileMapLayer, character: S
 			
 			dest.set_cell(cell_coord, source_id, target_atlas_coords, alternative_id)
 			source.erase_cell(cell_coord)
+
+func _ready() -> void:
+	body_entered.connect(_on_body_entered)
 	
-func _ready():
-	await write_text("TRY USING WASD TO MOVE", Vector2i(4,38), interaction_layer, 0.01, true, false)
-	await write_text("SPACE BAR WILL LET YOU JUMP", Vector2i(100,38), interaction_layer, 0.01, true, false)
+func _on_body_entered(body: Node2D) -> void:
+	if body is Player:
+		body_entered.disconnect(_on_body_entered)
+		await get_tree().create_timer(delay).timeout
+		await write_text(text, start_coord, target_layer, type_speed, scroll, fall)
+		queue_free()

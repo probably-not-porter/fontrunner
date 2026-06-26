@@ -1,6 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://ct2jwva87su2n"]
+[gd_scene load_steps=6 format=3 uid="uid://ct2jwva87su2n"]
 
 [ext_resource type="Script" uid="uid://dc45aoavf53cp" path="res://scripts/player.gd" id="1_eqqp1"]
+[ext_resource type="Texture2D" uid="uid://dnhqbxjwx8f73" path="res://sprites/reticle.png" id="2_ykyjo"]
+[ext_resource type="Script" uid="uid://bb6k0u0a6wdyf" path="res://scripts/reticle.gd" id="3_uxov2"]
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_xgyeg"]
 width = 32
@@ -13,7 +15,7 @@ height = 25.89
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_eqqp1")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="CharacterSprite" type="Sprite2D" parent="."]
 texture = SubResource("NoiseTexture2D_xgyeg")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -21,7 +23,13 @@ scale = Vector2(1.23, 1.23)
 shape = SubResource("CapsuleShape2D_ejomr")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-limit_left = 0
 limit_top = 0
 limit_bottom = 648
 position_smoothing_enabled = true
+
+[node name="Reticle" type="Sprite2D" parent="."]
+z_index = 15
+scale = Vector2(2, 2)
+texture = ExtResource("2_ykyjo")
+script = ExtResource("3_uxov2")
+rotation_speed = 20.0
